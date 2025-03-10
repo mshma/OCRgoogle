@@ -1,8 +1,6 @@
-streamlit
+Flask
 requests
-pillow
-pdf2image
 opencv-python-headless
-pandas
-openpyxl
 numpy
+pdf2image
+pillow
