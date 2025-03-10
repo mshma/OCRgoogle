@@ -1,0 +1,8 @@
+streamlit
+requests
+pillow
+pdf2image
+opencv-python
+pandas
+openpyxl
+numpy

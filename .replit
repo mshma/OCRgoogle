@@ -1,0 +1,77 @@
+entrypoint = "main.py"
+modules = ["python-3.11"]
+
+[nix]
+channel = "stable-24_05"
+
+[unitTest]
+language = "python3"
+
+[gitHubImport]
+requiredFiles = [".replit", "replit.nix"]
+
+[deployment]
+run = ["python3", "main.py"]
+deploymentTarget = "cloudrun"
+
+[[ports]]
+localPort = 3001
+
+[[ports]]
+localPort = 8080
+externalPort = 8080
+
+[[ports]]
+localPort = 8501
+externalPort = 80
+
+[[ports]]
+localPort = 8502
+externalPort = 5000
+
+[[ports]]
+localPort = 8503
+
+[[ports]]
+localPort = 8504
+
+[[ports]]
+localPort = 8505
+
+[[ports]]
+localPort = 8506
+
+[[ports]]
+localPort = 8507
+
+[[ports]]
+localPort = 8508
+
+[[ports]]
+localPort = 8509
+
+[[ports]]
+localPort = 8510
+
+[[ports]]
+localPort = 8511
+
+[[ports]]
+localPort = 8512
+
+[[ports]]
+localPort = 8513
+
+[[ports]]
+localPort = 8514
+
+[workflows]
+runButton = "Run Streamlit"
+
+[[workflows.workflow]]
+name = "Run Streamlit"
+author = 39552074
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "streamlit run main.py"
