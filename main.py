@@ -48,13 +48,21 @@ def pdf_to_images(pdf_path):
     try:
         images = convert_from_path(pdf_path, dpi=300)
         image_paths = []
-        for i, img in enumerate(images):
-            image_path = f"page_{i+1}.png"
+        if len(images) >= 2:  # إذا فيه صفحة ثانية
+            img = images[1]  # أخذ الصفحة الثانية (index = 1)
+            image_path = "page_2.png"
+            img.save(image_path, "PNG")
+            image_paths.append(image_path)
+        else:  # إذا فيه صفحة واحدة فقط
+            img = images[0]
+            image_path = "page_1.png"
             img.save(image_path, "PNG")
             image_paths.append(image_path)
         return image_paths
-    except:
+    except Exception as e:
+        print(f"❌ خطأ في تحويل PDF: {e}")
         return []
+
 
 # ---------------------- Extract Data from Text ----------------------
 def extract_data_from_text(text):
