@@ -5,11 +5,9 @@ import cv2
 from pdf2image import convert_from_path
 from flask import Flask, request, jsonify
 
-# إعداد Flask
 app = Flask(__name__)
 
-# إعداد مفتاح API لـ OCR.Space
-OCR_API_KEY = 'helloworld'  # استبدله بمفتاحك الحقيقي
+OCR_API_KEY = 'helloworld'  # استبدل بمفتاحك الحقيقي
 
 # ---------------------- OCR Function ----------------------
 def ocr_space_api(image_path):
@@ -27,10 +25,10 @@ def ocr_space_api(image_path):
             else:
                 return ""
     except Exception as e:
-        print(f"❌ خطأ في OCR: {e}")
+        print(f"❌ OCR Error: {e}")
         return ""
 
-# ---------------------- Preprocessing Function ----------------------
+# ---------------------- Preprocessing ----------------------
 def preprocess_image(image_path):
     try:
         image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
@@ -40,26 +38,24 @@ def preprocess_image(image_path):
         cv2.imwrite(processed_path, blurred)
         return processed_path
     except Exception as e:
-        print(f"❌ خطأ في المعالجة: {e}")
+        print(f"❌ Preprocessing Error: {e}")
         return image_path
 
-# ---------------------- Convert PDF to Only Page 2 ----------------------
-def pdf_to_images(pdf_path):
+# ---------------------- Convert PDF to Image (Page 2 if exists) ----------------------
+def pdf_to_image(pdf_path):
     try:
         images = convert_from_path(pdf_path, dpi=300)
-        image_paths = []
-        if len(images) >= 2:  # إذا يوجد صفحة ثانية
-            img = images[1]  # الصفحة الثانية
+        if len(images) >= 2:
+            img = images[1]  # صفحة 2
             image_path = "page_2.png"
-        else:  # إذا صفحة واحدة فقط
-            img = images[0]
+        else:
+            img = images[0]  # صفحة 1 إذا ما في 2
             image_path = "page_1.png"
         img.save(image_path, "PNG")
-        image_paths.append(image_path)
-        return image_paths
+        return image_path
     except Exception as e:
-        print(f"❌ خطأ في تحويل PDF: {e}")
-        return []
+        print(f"❌ PDF to Image Error: {e}")
+        return None
 
 # ---------------------- Extract Data from Text ----------------------
 def extract_data_from_text(text):
@@ -100,22 +96,20 @@ def extract_data_from_text(text):
 
 # ---------------------- Process PDF ----------------------
 def process_pdf(pdf_path):
-    image_paths = pdf_to_images(pdf_path)
-    full_texts = []
-
-    for img_path in image_paths:
-        processed_img_path = preprocess_image(img_path)
-        extracted_text = ocr_space_api(processed_img_path)
-        if extracted_text:
-            full_texts.append(extracted_text)
-        os.remove(img_path)
-        os.remove(processed_img_path)
-
-    if not full_texts:
+    image_path = pdf_to_image(pdf_path)
+    if not image_path:
         return {}
 
-    data = extract_data_from_text(" ".join(full_texts))
-    return data
+    processed_img_path = preprocess_image(image_path)
+    extracted_text = ocr_space_api(processed_img_path)
+
+    # حذف الصور بعد الاستخدام
+    if os.path.exists(image_path):
+        os.remove(image_path)
+    if os.path.exists(processed_img_path):
+        os.remove(processed_img_path)
+
+    return extract_data_from_text(extracted_text)
 
 # ---------------------- Flask API Endpoint ----------------------
 @app.route('/api/analyze_pdf', methods=['POST'])
@@ -133,15 +127,14 @@ def analyze_pdf():
     with open(pdf_path, 'wb') as f:
         f.write(response.content)
 
-    # معالجة PDF
+    # تحليل
     extracted_data = process_pdf(pdf_path)
 
-    # حذف الملف
-    os.remove(pdf_path)
+    # حذف pdf
+    if os.path.exists(pdf_path):
+        os.remove(pdf_path)
 
-    # إضافة اسم الملف
-    extracted_data["File Name"] = file_name
-
+    extracted_data["File Name"] = file_name  # إضافة اسم الملف
     return jsonify(extracted_data)
 
 # ---------------------- Run Server ----------------------
