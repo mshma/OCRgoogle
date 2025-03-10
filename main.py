@@ -2,16 +2,14 @@ import os
 import re
 import requests
 import cv2
-import numpy as np
 from pdf2image import convert_from_path
 from flask import Flask, request, jsonify
-from PIL import Image
 
 # إعداد Flask
 app = Flask(__name__)
 
 # إعداد مفتاح API لـ OCR.Space
-OCR_API_KEY = 'helloworld'  # استبدل بمفتاحك الحقيقي
+OCR_API_KEY = 'helloworld'  # استبدله بمفتاحك الحقيقي
 
 # ---------------------- OCR Function ----------------------
 def ocr_space_api(image_path):
@@ -29,6 +27,7 @@ def ocr_space_api(image_path):
             else:
                 return ""
     except Exception as e:
+        print(f"❌ خطأ في OCR: {e}")
         return ""
 
 # ---------------------- Preprocessing Function ----------------------
@@ -40,29 +39,27 @@ def preprocess_image(image_path):
         processed_path = f"processed_{os.path.basename(image_path)}"
         cv2.imwrite(processed_path, blurred)
         return processed_path
-    except:
+    except Exception as e:
+        print(f"❌ خطأ في المعالجة: {e}")
         return image_path
 
-# ---------------------- Convert PDF to Images ----------------------
+# ---------------------- Convert PDF to Only Page 2 ----------------------
 def pdf_to_images(pdf_path):
     try:
         images = convert_from_path(pdf_path, dpi=300)
         image_paths = []
-        if len(images) >= 2:  # إذا فيه صفحة ثانية
-            img = images[1]  # أخذ الصفحة الثانية (index = 1)
+        if len(images) >= 2:  # إذا يوجد صفحة ثانية
+            img = images[1]  # الصفحة الثانية
             image_path = "page_2.png"
-            img.save(image_path, "PNG")
-            image_paths.append(image_path)
-        else:  # إذا فيه صفحة واحدة فقط
+        else:  # إذا صفحة واحدة فقط
             img = images[0]
             image_path = "page_1.png"
-            img.save(image_path, "PNG")
-            image_paths.append(image_path)
+        img.save(image_path, "PNG")
+        image_paths.append(image_path)
         return image_paths
     except Exception as e:
         print(f"❌ خطأ في تحويل PDF: {e}")
         return []
-
 
 # ---------------------- Extract Data from Text ----------------------
 def extract_data_from_text(text):
@@ -142,7 +139,7 @@ def analyze_pdf():
     # حذف الملف
     os.remove(pdf_path)
 
-    # إضافة اسم الملف إلى البيانات المستخرجة
+    # إضافة اسم الملف
     extracted_data["File Name"] = file_name
 
     return jsonify(extracted_data)
