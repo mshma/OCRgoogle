@@ -75,9 +75,7 @@ def extract_data_from_text(text):
     name_match = re.search(r"اسم[\s:\/-]*\S+\s+(\S+\s+\S+\s+\S+)", text)
     id_match = re.search(r"(1\d{9})", text)
     university_match = re.search(r"(4\d{8})", text)
-    gpa_match = re.search(r"المعدل[:\-]?\s*(\d+\.\d{1,2})", text)
     mobile_match = re.search(r"(05\d{8})", text)
-    major_match = re.search(r"(?:تخصص[:\-]?\s*|علوم\s*)([أ-ي\s]+)", text, re.IGNORECASE)
     duration_match = re.search(r"مدة التدريب\s*\(.*?\)\s*(\d+)", text)
     start_date_match = re.search(r"(\d{4}/\d{2}/\d{2})", text)
     end_date_match = re.search(r"(\d{4}/\d{2}/\d{2})", text[start_date_match.end():]) if start_date_match else None
@@ -85,9 +83,7 @@ def extract_data_from_text(text):
     extracted_data["Name"] = name_match.group(1).strip() if name_match else "غير متوفر"
     extracted_data["ID No"] = id_match.group(1).strip() if id_match else "غير متوفر"
     extracted_data["University No"] = university_match.group(1).strip() if university_match else "غير متوفر"
-    extracted_data["GPA"] = gpa_match.group(1).strip() if gpa_match else "غير متوفر"
     extracted_data["Mobile No"] = mobile_match.group(1).strip() if mobile_match else "غير متوفر"
-    extracted_data["Major"] = major_match.group(1).strip() if major_match else "غير متوفر"
     extracted_data["Duration"] = duration_match.group(1).strip() if duration_match else "غير متوفر"
     extracted_data["Start Date"] = start_date_match.group(1).strip() if start_date_match else "غير متوفر"
     extracted_data["End Date"] = end_date_match.group(1).strip() if end_date_match else "غير متوفر"
