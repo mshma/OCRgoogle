@@ -72,7 +72,7 @@ def extract_data_from_text(text):
         "End Date": "غير متوفر"
     }
 
-    name_match = re.search(r"اسم\s+\S+\s+(.+)", text)
+    name_match = re.search(r"اسم[\s:\/-]*\S+\s+(\S+\s+\S+\s+\S+)", text)
     id_match = re.search(r"(1\d{9})", text)
     university_match = re.search(r"(4\d{8})", text)
     gpa_match = re.search(r"المعدل[:\-]?\s*(\d+\.\d{1,2})", text)
